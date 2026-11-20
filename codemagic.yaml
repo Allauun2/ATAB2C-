@@ -77,24 +77,24 @@ workflows:
         auth: integration
         submit_to_testflight: true
 
-  android-play:
-    name: SafarPlus Android Google Play
+  android-aab:
+    name: SafarPlus Android AAB
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
       flutter: 3.27.4
       java: 17
-      # Upload keystore, added in Codemagic under Team settings -> Code signing
-      # identities -> Android keystores with the reference name below. Codemagic
+      # Upload keystore, added in Codemagic under Settings -> Code signing
+      # identities -> Android keystores under this reference name. Codemagic
       # exposes it as CM_KEYSTORE_PATH / CM_KEYSTORE_PASSWORD / CM_KEY_ALIAS / CM_KEY_PASSWORD.
       android_signing:
-        - safarplus_upload
-      groups:
-        # GCLOUD_SERVICE_ACCOUNT_CREDENTIALS (same Play service account as ATA; it
-        # needs release permission on the SafarPlus app in Play Console).
-        - google_play
+        - safarplus
       vars:
         PACKAGE_NAME: "so.safarplus.app"
+        # versionCode. Play refuses a bundle whose code is not higher than the
+        # last one uploaded, so raise this (here or as a Codemagic variable)
+        # for every upload.
+        ANDROID_BUILD_NUMBER: "1"
     triggering:
       events:
         - tag
@@ -112,27 +112,26 @@ workflows:
       - name: Get dependencies
         script: flutter pub get
       - name: Build signed app bundle
-        # A brand-new Play app has no builds yet (and Google requires its very
-        # first bundle to be uploaded by hand in Play Console), so start at 1.
         script: |
           set -e
-          LATEST=$(google-play get-latest-build-number \
-            --package-name "$PACKAGE_NAME" \
-            --credentials "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" 2>/dev/null || echo 0)
-          LATEST=$(echo "$LATEST" | grep -E '^[0-9]+$' || echo 0)
           VERSION=$(sed -nE 's/^version:[[:space:]]*([0-9]+(\.[0-9]+)*).*/\1/p' pubspec.yaml | head -1)
           if [ -z "$VERSION" ]; then echo "ERROR: no version found in pubspec.yaml"; exit 1; fi
-          echo "Latest build on Google Play: $LATEST -> building $VERSION ($(($LATEST + 1)))"
+          echo "Building $VERSION ($ANDROID_BUILD_NUMBER)"
           flutter build appbundle --release \
             --build-name=$VERSION \
-            --build-number=$(($LATEST + 1))
+            --build-number=$ANDROID_BUILD_NUMBER
       - name: Verify 16 KB native library alignment
+        # Play rejects bundles whose .so files are not 16 KB aligned. Fail here
+        # rather than after an upload round-trip.
         script: |
           python3 tool/check_so_alignment.py build/app/outputs/bundle/release/app-release.aab
     artifacts:
       - build/app/outputs/bundle/release/*.aab
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: false
+    # No publishing block on purpose: Google requires the FIRST bundle of a new
+    # app to be uploaded by hand in Play Console. To automate later uploads, add
+    # a Play service account JSON as GCLOUD_SERVICE_ACCOUNT_CREDENTIALS in a
+    # group named google_play, list that group under environment, and add:
+    #   publishing:
+    #     google_play:
+    #       credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+    #       track: internal
