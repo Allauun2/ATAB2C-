@@ -9,7 +9,5 @@ class AppLinks {
   static const androidStore =
       'https://play.google.com/store/apps/details?id=so.safarplus.app';
 
-  /// Replace with https://apps.apple.com/app/id<Apple ID> once the App Store
-  /// record exists; until then the update screen opens the website.
-  static const iosStore = website;
+  static const iosStore = 'https://apps.apple.com/app/id6837398024';
 }
