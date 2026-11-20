@@ -50,6 +50,7 @@ class SafarPlusStrings {
         'An account with this email already exists. Sign in or reset your password.',
 
     // shell
+    'search.headline': 'Where are you flying to?',
     'nav.myBookings': 'My Trips',
     'nav.search': 'Book a flight',
 
@@ -134,6 +135,7 @@ class SafarPlusStrings {
     'register.exists':
         'Akoon leh iimaylkan horay ayuu u jiray. Soo gal ama dib u samee furaha.',
 
+    'search.headline': 'Xagee u socotaa?',
     'nav.myBookings': 'Safarradayda',
     'nav.search': 'Duulimaad qabso',
 

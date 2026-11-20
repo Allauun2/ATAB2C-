@@ -408,9 +408,13 @@ class _BookingCardState extends State<BookingCard> {
               ),
               child: Column(
                 children: [
-                  _FareRow('booking.fare'.tr, _money(b.ticketAmount)),
+                  // Customers see what they paid: fare = total − taxes. The
+                  // agency's net cost (ticketAmount) and markup stay internal.
+                  _FareRow(
+                      'booking.fare'.tr,
+                      _money((num.tryParse('${b.totalAmount}') ?? 0) -
+                          (num.tryParse('${b.taxAmount}') ?? 0))),
                   _FareRow('booking.taxesAndFees'.tr, _money(b.taxAmount)),
-                  _FareRow('booking.agencyCharges'.tr, _money(b.agencyMarkup)),
                   const Divider(height: 14, color: AppColors.appColorSperator),
                   _FareRow('booking.total'.tr, _money(b.totalAmount),
                       strong: true),

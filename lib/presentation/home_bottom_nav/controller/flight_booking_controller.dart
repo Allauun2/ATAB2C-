@@ -79,11 +79,16 @@ class FlightBookingController extends GetxController {
         final message = data is Map
             ? (data['error'] ?? data['title'] ?? data['message'])
             : null;
-        Get.showSnackbar(gradientSnackbar(
-          'common.failure'.tr,
-          '${message ?? 'common.error'.tr}',
-          AppColors.red,
-          Icons.warning_rounded,
+        // A dialog, not a snackbar: the customer has just been waiting on
+        // their phone and must not miss why the payment or ticket failed.
+        Get.dialog(AlertDialog(
+          icon: const Icon(Icons.error_outline_rounded,
+              size: 40, color: AppColors.red),
+          title: Text('common.failure'.tr),
+          content: Text('${message ?? 'common.error'.tr}'),
+          actions: [
+            TextButton(onPressed: Get.back, child: Text('common.ok'.tr)),
+          ],
         ));
       }
       return false;

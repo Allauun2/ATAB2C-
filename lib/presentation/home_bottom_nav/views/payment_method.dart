@@ -172,6 +172,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               labelText: 'payment.evcNumber'.tr,
               hintText: 'register.phoneHint'.tr,
               prefixText: '+252 ',
+              errorMaxLines: 2,
             ),
             validator: (v) => _evcPattern.hasMatch(v?.trim() ?? '')
                 ? null

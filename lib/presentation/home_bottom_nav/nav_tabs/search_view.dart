@@ -455,7 +455,7 @@ class _SearchScreenState extends State<SearchScreen> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         physics: const BouncingScrollPhysics(),
         children: [
-          BroadcastBanner(),
+          // No BroadcastBanner: broadcasts are ATA's messages to agencies.
           CommonText(
             text: 'search.headline'.tr,
             fontSize: 20.0,

@@ -88,6 +88,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
         labelText: label,
         hintText: hint,
         prefixText: prefix,
+        errorMaxLines: 2,
         prefixIcon: Icon(icon, size: 20, color: AppColors.appColorTextDarkGray),
         suffixIcon: suffix,
       );
