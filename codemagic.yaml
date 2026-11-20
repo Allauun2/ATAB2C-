@@ -1,0 +1,138 @@
+# SafarPlus store builds (adapted from the ATA app's working pipeline — see the
+# ata-mobile-deploy skill for why each step is the way it is).
+# Version name: pubspec.yaml `version:` only. Build numbers come from the stores.
+workflows:
+  ios-testflight:
+    name: SafarPlus iOS TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      flutter: 3.27.4
+      xcode: latest
+      cocoapods: default
+      groups:
+        # Same group as the ATA app: CERTIFICATE_PRIVATE_KEY pins the team's one
+        # distribution certificate (same Apple team K4L2DCKKW8), so SafarPlus
+        # reuses it and only gets its own provisioning profile.
+        - app_store_credentials
+      vars:
+        BUNDLE_ID: "so.safarplus.app"
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "ios-v*"
+    scripts:
+      - name: Set up code signing (creates profile if missing)
+        script: |
+          keychain initialize
+          # Legacy template hardcodes "iPhone Developer" for device builds; drop it so
+          # the distribution profile below is used.
+          sed -i '' '/CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]/d' ios/Runner.xcodeproj/project.pbxproj
+          if [ -z "$CERTIFICATE_PRIVATE_KEY" ]; then
+            echo "ERROR: CERTIFICATE_PRIVATE_KEY is not set (app_store_credentials group)."
+            exit 1
+          fi
+          printf '%s' "$CERTIFICATE_PRIVATE_KEY" > /tmp/cert_key.pem
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key=@file:/tmp/cert_key.pem \
+            --delete-stale-profiles \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+          ls "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision 2>/dev/null \
+            || ls "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/"*.mobileprovision 2>/dev/null \
+            || { echo "ERROR: no provisioning profile was installed — check the fetch-signing-files output above."; exit 1; }
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build signed ipa
+        script: |
+          set -e
+          APP_ID=$(app-store-connect apps list \
+            --bundle-id-identifier "$BUNDLE_ID" --strict-match-identifier --json \
+            | jq -r '.[0].id // empty')
+          if [ -z "$APP_ID" ]; then
+            echo "ERROR: no App Store Connect app for $BUNDLE_ID — create the app record first."
+            exit 1
+          fi
+          TF=$(app-store-connect get-latest-testflight-build-number "$APP_ID" 2>/dev/null || echo 0)
+          AS=$(app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0)
+          LATEST=$(printf '%s\n%s\n0\n' "${TF:-0}" "${AS:-0}" | grep -E '^[0-9]+$' | sort -n | tail -1)
+          BUILD_NUMBER=$((LATEST + 1))
+          VERSION=$(sed -nE 's/^version:[[:space:]]*([0-9]+(\.[0-9]+)*).*/\1/p' pubspec.yaml | head -1)
+          if [ -z "$VERSION" ]; then echo "ERROR: no version found in pubspec.yaml"; exit 1; fi
+          echo "Latest build on App Store Connect: $LATEST -> uploading $VERSION ($BUILD_NUMBER)"
+          flutter build ipa --release \
+            --build-name=$VERSION \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-play:
+    name: SafarPlus Android Google Play
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: 3.27.4
+      java: 17
+      # Upload keystore, added in Codemagic under Team settings -> Code signing
+      # identities -> Android keystores with the reference name below. Codemagic
+      # exposes it as CM_KEYSTORE_PATH / CM_KEYSTORE_PASSWORD / CM_KEY_ALIAS / CM_KEY_PASSWORD.
+      android_signing:
+        - safarplus_upload
+      groups:
+        # GCLOUD_SERVICE_ACCOUNT_CREDENTIALS (same Play service account as ATA; it
+        # needs release permission on the SafarPlus app in Play Console).
+        - google_play
+      vars:
+        PACKAGE_NAME: "so.safarplus.app"
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: "android-v*"
+    scripts:
+      - name: Release signing from the Codemagic keystore
+        script: |
+          cat > android/key.properties <<PROPS
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=$CM_KEYSTORE_PATH
+          PROPS
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build signed app bundle
+        # A brand-new Play app has no builds yet (and Google requires its very
+        # first bundle to be uploaded by hand in Play Console), so start at 1.
+        script: |
+          set -e
+          LATEST=$(google-play get-latest-build-number \
+            --package-name "$PACKAGE_NAME" \
+            --credentials "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" 2>/dev/null || echo 0)
+          LATEST=$(echo "$LATEST" | grep -E '^[0-9]+$' || echo 0)
+          VERSION=$(sed -nE 's/^version:[[:space:]]*([0-9]+(\.[0-9]+)*).*/\1/p' pubspec.yaml | head -1)
+          if [ -z "$VERSION" ]; then echo "ERROR: no version found in pubspec.yaml"; exit 1; fi
+          echo "Latest build on Google Play: $LATEST -> building $VERSION ($(($LATEST + 1)))"
+          flutter build appbundle --release \
+            --build-name=$VERSION \
+            --build-number=$(($LATEST + 1))
+      - name: Verify 16 KB native library alignment
+        script: |
+          python3 tool/check_so_alignment.py build/app/outputs/bundle/release/app-release.aab
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false
