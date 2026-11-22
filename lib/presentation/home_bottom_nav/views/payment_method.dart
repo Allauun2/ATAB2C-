@@ -177,6 +177,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             validator: (v) => _evcPattern.hasMatch(v?.trim() ?? '')
                 ? null
                 : 'payment.invalidEvc'.tr,
+            // A full number needs no more typing: drop the keyboard so the
+            // Pay and book bar underneath shows.
+            onChanged: (v) {
+              if (v.length == 9) FocusScope.of(context).unfocus();
+            },
             onFieldSubmitted: (_) => _confirm(),
           ),
           const SizedBox(height: 10),

@@ -104,6 +104,20 @@ class MyApp extends StatelessWidget {
         dividerTheme:
             const DividerThemeData(color: AppColors.appColorSperator),
       ),
+      // iPhone number pads have no Done key, so the keyboard would never
+      // close: tapping outside a field or dragging a list closes it.
+      builder: (context, child) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: NotificationListener<ScrollStartNotification>(
+          onNotification: (n) {
+            if (n.dragDetails != null) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+            return false;
+          },
+          child: child!,
+        ),
+      ),
       // home: LoginScreen(),
       home: SplashScreen(),
     );

@@ -88,6 +88,22 @@ class SafarPlusStrings {
     // my trips
     'trips.emptyHint':
         'Find great fares to your next destination with SafarPlus.',
+    'trips.guestHint':
+        'Trips you book as a guest are saved on this phone. You can also find any booking with its reference (PNR).',
+    'trips.findBooking': 'Find a booking',
+
+    // guest
+    'auth.continueAsGuest': 'Continue as guest',
+    'auth.or': 'or',
+    'auth.continueWithGoogle': 'Continue with Google',
+    'auth.continueWithApple': 'Continue with Apple',
+    'guest.hello': 'Hello, guest',
+    'guest.title': "You're booking as a guest",
+    'guest.body':
+        'Create a free account to keep all your trips in one place, on any phone.',
+    'guest.signUp': 'Sign up',
+    'guest.signInForTrips': 'Have an account? Sign in to see all your trips',
+    'profile.settings': 'Settings',
   };
 
   static const Map<String, String> so = {
@@ -170,5 +186,20 @@ class SafarPlusStrings {
     'profile.deleted': 'Akoonkaaga waa la tirtiray.',
 
     'trips.emptyHint': 'Ka hel qiimo fiican safarkaaga xiga SafarPlus.',
+    'trips.guestHint':
+        'Safarrada aad marti ahaan u ballansato waxay ku kaydsan yihiin taleefankan. Ballan kasta waxaad ku heli kartaa lambarkeeda (PNR).',
+    'trips.findBooking': 'Raadi ballan',
+
+    'auth.continueAsGuest': 'Ku sii wad marti ahaan',
+    'auth.or': 'ama',
+    'auth.continueWithGoogle': 'Ku sii wad Google',
+    'auth.continueWithApple': 'Ku sii wad Apple',
+    'guest.hello': 'Soo dhawoow, marti',
+    'guest.title': 'Waxaad u ballansanaysaa marti ahaan',
+    'guest.body':
+        'Samee akoon bilaash ah si safarradaada oo dhan meel keliya ugu jiraan, taleefan kasta.',
+    'guest.signUp': 'Is diiwaangeli',
+    'guest.signInForTrips': 'Akoon ma leedahay? Gal si aad u aragto safarradaada oo dhan',
+    'profile.settings': 'Dejinta',
   };
 }

@@ -16,6 +16,7 @@ import '../../../app/data/data_controller.dart';
 import '../../../app/utils/custom_widgets/gradient_snackbar.dart';
 import '../../auth/view/login_screen.dart';
 import '../controller/booking_history_controller.dart';
+import 'guest_trips_view.dart';
 import '../controller/share_ticket_controller.dart';
 import '../model/booking_history_model.dart';
 
@@ -60,7 +61,8 @@ class _BookingScreenState extends State<BookingScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bookingHistoryController.fetchBookings();
+      // A guest's trips live on the phone (GuestTripsView).
+      if (dataController.myLoggedIn.value) bookingHistoryController.fetchBookings();
       dataController.loadMyData();
     });
   }
@@ -125,10 +127,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ],
             )
-          : Padding(
-              padding: EdgeInsets.all(20),
-              child: GotoLoginWidget(),
-            ),
+          : const GuestTripsView(),
     );
   }
 

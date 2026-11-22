@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'social_buttons.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:travel_app/app/configs/app_colors.dart';
@@ -6,6 +7,9 @@ import 'package:travel_app/app/localization/language_service.dart';
 import 'package:travel_app/app/utils/custom_widgets/common_text.dart';
 import 'package:travel_app/presentation/auth/view/customer_register_screen.dart';
 import 'package:travel_app/presentation/auth/view/reset_password_screen.dart';
+import 'package:travel_app/app/data/data_controller.dart';
+import 'package:travel_app/app/utils/guest.dart';
+import 'package:travel_app/presentation/home_bottom_nav/bnb/bottom_nav_view.dart';
 
 import '../controller/login_controller.dart';
 
@@ -252,6 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 );
               }),
+              const SocialButtons(),
               const SizedBox(height: 18),
               CommonText(
                 text: 'auth.noAccount'.tr,
@@ -272,6 +277,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text('auth.createAccount'.tr,
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w600)),
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                onPressed: () async {
+                  await Guest.enter();
+                  await Get.put(DataController()).loadMyData();
+                  Get.offAll(() => BottomNavScreen(),
+                      transition: Transition.fadeIn);
+                },
+                child: Text('auth.continueAsGuest'.tr,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600)),
               ),
               const Spacer(),
               const SizedBox(height: 24),

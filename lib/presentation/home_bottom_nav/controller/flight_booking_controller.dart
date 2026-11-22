@@ -6,6 +6,7 @@ import '../../../app/configs/app_colors.dart';
 import '../../../app/data/data_controller.dart';
 import '../../../app/utils/api_utility/api_url.dart';
 import '../../../app/utils/custom_widgets/gradient_snackbar.dart';
+import '../../../app/utils/guest.dart';
 import '../model/booking_trip.dart';
 import '../views/booking_details.dart';
 import 'flight_search_service.dart';
@@ -70,6 +71,7 @@ class FlightBookingController extends GetxController {
       } catch (_) {}
 
       if (response.statusCode == 200 && data is Map) {
+        if (!dataController.myLoggedIn.value) await _keepGuestTrip('${data['parentPnr']}', trip);
         Get.offAll(() => BookingDetailsScreen(
               parentPNR: '${data['parentPnr']}',
               status: '${data['status']}',
@@ -103,5 +105,22 @@ class FlightBookingController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// A guest has no account to list trips from, so their trip stays on this
+  /// phone (My Trips) and is found again by its PNR.
+  Future<void> _keepGuestTrip(String pnr, BookingTrip trip) async {
+    final legs = trip.legs;
+    if (pnr.isEmpty || legs.isEmpty) return;
+    final first = legs.first, last = legs.last;
+    final isReturn = legs.length > 1 && last.toCode == first.fromCode;
+    await Guest.saveTrip(GuestTrip(
+      pnr: pnr,
+      route: isReturn
+          ? '${first.fromCode} ⇄ ${first.toCode}'
+          : '${first.fromCode} → ${last.toCode}',
+      date: first.date,
+      airline: first.airline,
+    ));
   }
 }

@@ -21,8 +21,8 @@ class DataController extends GetxController {
     String? _email = prefs.getString('savedEmail') ?? "Error";
     String? _name = prefs.getString('savedName') ?? "Error";
     String? _username = prefs.getString('savedUsername') ?? "Error";
-    String? _token = prefs.getString('savedToken') ?? "Error";
-    String? _refToken = prefs.getString('savedRefToken') ?? "Error";
+    String? _token = prefs.getString('savedToken') ?? '';
+    String? _refToken = prefs.getString('savedRefToken') ?? '';
     int? _roleSupportID = prefs.getInt('savedRoleSupportId') ?? 1;
     int? _myRoleId = prefs.getInt("roleID") ?? 4;
 

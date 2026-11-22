@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'social_buttons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/configs/app_colors.dart';
@@ -250,6 +251,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     ),
                   );
                 }),
+                const SocialButtons(),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

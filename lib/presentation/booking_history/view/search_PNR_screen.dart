@@ -23,9 +23,13 @@ class SearchPNRScreen extends StatefulWidget {
 
   const SearchPNRScreen({
     super.key,
+    this.pnr,
     // required this.tripType,
     // required this.bookingId,
   });
+
+  /// Looked up straight away when given (a guest's saved trip).
+  final String? pnr;
 
   @override
   State<SearchPNRScreen> createState() => _SearchPNRScreenState();
@@ -65,9 +69,12 @@ class _SearchPNRScreenState extends State<SearchPNRScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // searchPNRController.fetchPNR();
-    });
+    final pnr = widget.pnr;
+    if (pnr != null && pnr.isNotEmpty) {
+      searchController.text = pnr;
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => searchPNRController.fetchPNR(pnr));
+    }
   }
 
   @override

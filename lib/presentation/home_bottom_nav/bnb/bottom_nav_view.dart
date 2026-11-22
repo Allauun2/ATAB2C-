@@ -446,7 +446,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
                       children: [
                         const SizedBox(height: 100),
                         CommonText(
-                          text: 'Hello Guest',
+                          text: 'guest.hello'.tr,
                           fontSize: 20.0,
                         ),
                         const SizedBox(height: 8),
@@ -459,17 +459,30 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
                           leading: const Icon(
                             Icons.login_rounded,
                           ),
-                          title: CommonText(text: "Login"),
+                          title: CommonText(text: 'auth.signIn'.tr),
+                        ),
+                        ListTile(
+                          dense: true,
+                          onTap: () async {
+                            await LanguageService.toggle();
+                            setState(() {});
+                          },
+                          leading: const Icon(Icons.translate_rounded),
+                          title: CommonText(text: 'nav.language'.tr),
                         ),
                         const Spacer(),
                         // App version at the bottom for guest users
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: Center(
-                            child: CommonText(
-                              text: "Version 1.0.0",
-                              fontSize: 14.0,
-                              color: Colors.grey,
+                            child: FutureBuilder<PackageInfo>(
+                              future: PackageInfo.fromPlatform(),
+                              builder: (_, info) => CommonText(
+                                text:
+                                    "${'nav.version'.tr} ${info.data?.version ?? ''}",
+                                fontSize: 12.0,
+                                color: AppColors.appColorTextLightGray,
+                              ),
                             ),
                           ),
                         ),

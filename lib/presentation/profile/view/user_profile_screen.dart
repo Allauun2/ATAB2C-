@@ -17,7 +17,7 @@ import 'package:travel_app/presentation/profile/controller/user_profile_controll
 import 'package:travel_app/presentation/profile/model/user_profile_model.dart';
 
 import '../../../app/data/data_controller.dart';
-import '../../booking_history/view/my_bookings_screen.dart';
+import '../../auth/view/customer_register_screen.dart';
 import 'update_profile_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -38,7 +38,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      userProfileController.fetchUser();
+      if (dataController.myLoggedIn.value) userProfileController.fetchUser();
       dataController.loadMyData();
     });
   }
@@ -158,31 +158,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                   _section('profile.support'.tr),
-                  _card([
-                    _link(Icons.call_outlined, 'profile.callUs'.tr,
-                        AppLinks.supportPhone,
-                        'tel:${AppLinks.supportPhone.replaceAll(' ', '')}'),
-                    _divider(),
-                    _link(Icons.mail_outline_rounded, 'profile.emailUs'.tr,
-                        AppLinks.supportEmail, 'mailto:${AppLinks.supportEmail}'),
-                    _divider(),
-                    _link(Icons.public_rounded, 'profile.website'.tr,
-                        'safarplus.so', AppLinks.website),
-                    _divider(),
-                    _link(Icons.privacy_tip_outlined, 'profile.privacy'.tr,
-                        null, AppLinks.privacyPolicy),
-                    _divider(),
-                    _link(Icons.description_outlined, 'profile.terms'.tr, null,
-                        AppLinks.terms),
-                  ]),
+                  _supportCard(),
                   _section('profile.account'.tr),
                   _card([
-                    _action(Icons.translate_rounded, 'nav.language'.tr,
-                        LanguageService.isSomali ? 'Soomaali' : 'English',
-                        () async {
-                      await LanguageService.toggle();
-                      setState(() {});
-                    }),
+                    _languageAction(),
                     _divider(),
                     _action(Icons.logout_rounded, 'nav.logout'.tr, null,
                         _logout),
@@ -194,12 +173,98 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ],
               );
             })
-          : const Padding(
-              padding: EdgeInsets.all(20),
-              child: GotoLoginWidget(),
-            ),
+          : _guestProfile(),
     );
   }
+
+  /// A guest: an invitation to sign in or sign up, then the same help and
+  /// language settings as an account.
+  Widget _guestProfile() => ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
+            decoration: BoxDecoration(
+              color: AppColors.appColorPrimaryDark,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommonText(
+                  text: 'guest.title'.tr,
+                  fontSize: 17.0,
+                  weight: FontWeight.w700,
+                  color: AppColors.appColorWhite,
+                ),
+                const SizedBox(height: 6),
+                CommonText(
+                  text: 'guest.body'.tr,
+                  fontSize: 13.0,
+                  color: AppColors.appColorWhite.withOpacity(0.8),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Get.offAll(() => const LoginScreen()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.appColorWhite,
+                          foregroundColor: AppColors.appColorPrimaryDark,
+                        ),
+                        child: Text('auth.signIn'.tr),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            Get.to(() => const CustomerRegisterScreen()),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.appColorWhite,
+                          side: BorderSide(
+                              color: AppColors.appColorWhite.withOpacity(0.7)),
+                        ),
+                        child: Text('guest.signUp'.tr),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          _section('profile.support'.tr),
+          _supportCard(),
+          _section('profile.settings'.tr),
+          _card([_languageAction()]),
+        ],
+      );
+
+  Widget _supportCard() => _card([
+        _link(Icons.call_outlined, 'profile.callUs'.tr, AppLinks.supportPhone,
+            'tel:${AppLinks.supportPhone.replaceAll(' ', '')}'),
+        _divider(),
+        _link(Icons.mail_outline_rounded, 'profile.emailUs'.tr,
+            AppLinks.supportEmail, 'mailto:${AppLinks.supportEmail}'),
+        _divider(),
+        _link(Icons.public_rounded, 'profile.website'.tr, 'safarplus.so',
+            AppLinks.website),
+        _divider(),
+        _link(Icons.privacy_tip_outlined, 'profile.privacy'.tr, null,
+            AppLinks.privacyPolicy),
+        _divider(),
+        _link(Icons.description_outlined, 'profile.terms'.tr, null,
+            AppLinks.terms),
+      ]);
+
+  Widget _languageAction() => _action(Icons.translate_rounded,
+          'nav.language'.tr, LanguageService.isSomali ? 'Soomaali' : 'English',
+          () async {
+        await LanguageService.toggle();
+        setState(() {});
+      });
 
   Widget _divider() => const Divider(
       height: 1, indent: 48, color: AppColors.appColorSperator);

@@ -11,6 +11,7 @@ import "package:travel_app/presentation/splash_screen/onboard_screen.dart";
 import "../../app/data/data_controller.dart";
 import "../../app/utils/app_update.dart";
 import "../../app/utils/auth_session.dart";
+import "../../app/utils/guest.dart";
 import "../../app/utils/session_validator.dart";
 import "../home_bottom_nav/bnb/bottom_nav_view.dart";
 import "../update/update_required_screen.dart";
@@ -47,6 +48,9 @@ class _SplashScreenState extends State<SplashScreen> {
     } else if (await AuthSession.tryRestore()) {
       await dataController.loadMyData();
       SessionValidator.start();
+      next = BottomNavScreen();
+    } else if (await Guest.isOn()) {
+      await dataController.loadMyData();
       next = BottomNavScreen();
     } else {
       next = const LoginScreen();

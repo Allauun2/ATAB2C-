@@ -94,7 +94,7 @@ workflows:
         # versionCode. Play refuses a bundle whose code is not higher than the
         # last one uploaded, so raise this (here or as a Codemagic variable)
         # for every upload.
-        ANDROID_BUILD_NUMBER: "1"
+        ANDROID_BUILD_NUMBER: "2"
     triggering:
       events:
         - tag
