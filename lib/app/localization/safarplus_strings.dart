@@ -8,9 +8,9 @@ class SafarPlusStrings {
     'update.body':
         'A new version of SafarPlus is available. Please update it to keep searching and booking flights.',
     'onboard.searchBody': "Compare fares from Somalia's airlines in one search.",
-    'onboard.payTitle': 'Pay with EVC Plus',
+    'onboard.payTitle': 'Pay online',
     'onboard.payBody':
-        'Approve the payment on your phone — your e-ticket is issued straight away.',
+        'Pay securely in the app — your e-ticket is issued straight away.',
 
     // sign in
     'auth.signInSubtitle': 'Sign in to book your flights',
@@ -25,7 +25,7 @@ class SafarPlusStrings {
 
     // sign up
     'register.title': 'Create your account',
-    'register.subtitle': 'Book flights and pay with EVC Plus',
+    'register.subtitle': 'Book flights and pay online',
     'register.firstName': 'First name',
     'register.lastName': 'Last name',
     'register.email': 'Email',
@@ -112,9 +112,9 @@ class SafarPlusStrings {
         'Nooc cusub oo SafarPlus ah ayaa diyaar ah. Fadlan cusboonaysii si aad u sii raadiso oo u buukiso duulimaadyada.',
     'onboard.searchBody':
         'Isbarbardhig qiimaha shirkadaha diyaaradaha Soomaaliya hal raadin.',
-    'onboard.payTitle': 'Ku bixi EVC Plus',
+    'onboard.payTitle': 'Ku bixi online',
     'onboard.payBody':
-        'Lacagta ka ogolow taleefankaaga — e-tikidhkaaga isla markiiba waa la soo saarayaa.',
+        'Si ammaan ah ugu bixi app-ka — e-tikidhkaaga isla markiiba waa la soo saarayaa.',
 
     'auth.signInSubtitle': 'Soo gal si aad u buukiso duulimaadyadaada',
     'auth.agencySubtitle': 'Gal akoonkaaga SafarPlus',
@@ -127,7 +127,7 @@ class SafarPlusStrings {
     'auth.createAccount': 'Samee akoon',
 
     'register.title': 'Samee akoonkaaga',
-    'register.subtitle': 'Buuki duulimaadyo oo ku bixi EVC Plus',
+    'register.subtitle': 'Buuki duulimaadyo oo ku bixi online',
     'register.firstName': 'Magaca koowaad',
     'register.lastName': 'Magaca dambe',
     'register.email': 'Iimaylka',

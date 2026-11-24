@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # One version for Android and iOS. The release builds take the name from here
 # and work out the build number themselves (each store's last number + 1), so
 # this line is the only place to change for a new release.
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: '>=3.1.3 <4.0.0'
